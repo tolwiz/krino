@@ -60,16 +60,25 @@ Mat mat_alloc(size_t rows, size_t cols){
 }
 
 void mat_dot(Mat dst, Mat a, Mat b) {
-    (void) dst;
-    (void) a;
-    (void) b;
+    NN_ASSERT(a.cols == b.rows);
+    size_t n = a.cols;
+    NN_ASSERT(dst.rows == a.rows);
+    NN_ASSERT(dst.cols == b.cols);
+
+    for (size_t i = 0; i < dst.rows; ++i) {
+        for (size_t j = 0; j < dst.cols; ++j) {
+            for (size_t k = 0; k < n; ++k) {
+                MAT_AT(dst, i , j) += MAT_AT(a, i, k) * MAT_AT(b, k, j);
+            }
+        }
+    }
 }
 
 void mat_sum(Mat dst, Mat a){
     NN_ASSERT(dst.rows == a.rows);
     NN_ASSERT(dst.cols == a.cols);
     for (size_t i = 0; i < dst.rows; ++i) {
-        for (size_t j = 0; j < dst.rows; ++j) {
+        for (size_t j = 0; j < dst.cols; ++j) {
             MAT_AT(dst, i, j) += MAT_AT(a, i, j);
         }
     }
