@@ -1,3 +1,3 @@
 #!/bin/sh
 
-gcc -Wall -Wextra -o nn nn.c -lm
+gcc -g -Wall -Wextra -o nn nn.c -lm
