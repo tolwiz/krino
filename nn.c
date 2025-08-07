@@ -12,6 +12,19 @@ typedef struct {
     Mat w2, b2, a2;
 } Xor;
 
+float forward_xor(Xor m) {
+    
+    // pass input through the first layer
+    mat_dot(m.a1, m.a0, m.w1);
+    mat_sum(m.a1, m.b1);
+    mat_sig(m.a1);
+
+    // pass input through the second layer
+    mat_dot(m.a2, m.a1, m.w2);
+    mat_sum(m.a2, m.b2);
+    mat_sig(m.a2);
+}
+
 float cost(Xor m, Mat ti, Mat to) {
     assert(ti.rows == to.rows);
     assert(to.cols == m.a2.cols);
@@ -35,19 +48,6 @@ float cost(Xor m, Mat ti, Mat to) {
     return c/n;
 }
 
-float forward_xor(Xor m) {
-    
-    // pass input through the first layer
-    mat_dot(m.a1, m.a0, m.w1);
-    mat_sum(m.a1, m.b1);
-    mat_sig(m.a1);
-
-    // pass input through the second layer
-    mat_dot(m.a2, m.a1, m.w2);
-    mat_sum(m.a2, m.b2);
-    mat_sig(m.a2);
-}
-
 float td[] = {
    0, 0, 0,
    0, 1, 1,
@@ -57,6 +57,22 @@ float td[] = {
 
 int main(void) {
     srand(time(0));
+
+    size_t stride = 3;
+    size_t n = sizeof(td)/sizeof(td[0])/stride;
+    Mat ti = {
+        .rows = n,
+        .cols = 2,
+        .stride = stride,
+        .es = td
+    };
+
+    Mat to = {
+        .rows = n,
+        .cols = 1,
+        .stride = stride,
+        .es = td + 2
+    };
 
     Xor m;
     m.a0 = mat_alloc(1, 2);
@@ -73,7 +89,8 @@ int main(void) {
     mat_rand(m.b2, 0, 1);
 
     printf("cost = %f\n", cost(m, ti, to));
-
+    
+    /*
     for (size_t i = 0; i < 2; ++i) {
         for (size_t j = 0; j < 2; ++j) {
             // input
@@ -84,7 +101,7 @@ int main(void) {
 
             printf("%zu ^ %zu = %f\n", i, j, y);
         }
-    }
+    }*/
 
     return 0;
 }

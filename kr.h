@@ -41,7 +41,7 @@ float sigmoidf(float x);
 Mat mat_alloc(size_t rows, size_t cols);
 void mat_fill(Mat m, float x);
 void mat_rand(Mat m, float low, float high);
-void mat_row(Mat m, size_t row);
+Mat mat_row(Mat m, size_t row);
 void mat_copy(Mat dst, Mat src);
 void mat_dot(Mat dst, Mat a, Mat b);
 void mat_sum(Mat dst, Mat a);
@@ -86,13 +86,13 @@ void mat_dot(Mat dst, Mat a, Mat b) {
     }
 }
 
-void mat_row(Mat m, size_t row) {
+Mat mat_row(Mat m, size_t row) {
     return (Mat){
         .rows = 1,
         .cols = m.cols,
         .stride = m.stride,
         .es = &MAT_AT(m, row, 0)
-    }
+    };
 }
 
 void mat_copy(Mat dst, Mat src) {
