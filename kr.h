@@ -15,6 +15,11 @@
 #define NN_ASSERT assert
 #endif // NN_ASSERT
 
+#define ARRAY_LEN(xs) sizeof((xs))/sizeof((xs)[0])
+
+float rand_float(void);
+float sigmoidf(float x);
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                   *
  * Define a data structure for matrices.             *
@@ -35,8 +40,6 @@ typedef struct {
 
 #define MAT_AT(m, i, j) (m).es[(i)*(m).stride + (j)]
 
-float rand_float(void);
-float sigmoidf(float x);
 
 Mat mat_alloc(size_t rows, size_t cols);
 void mat_fill(Mat m, float x);
@@ -48,6 +51,18 @@ void mat_sum(Mat dst, Mat a);
 void mat_sig(Mat m);
 void mat_print(Mat m, const char *name);
 #define MAT_PRINT(m) mat_print(m, #m)
+
+typedef struct {
+    size_t count;
+    Mat *ws;
+    Mat *bs;
+    Mat *as; // The amount of activations is count+1
+} NN;
+
+NN nn_alloc(size_t *arch, size_t arch_count); 
+void nn_print(NN nn, const char *name);
+#define NN_PRINT(nn) nn_print(nn, #nn);
+
 
 #endif // NN_H_
 
@@ -148,6 +163,38 @@ void mat_rand(Mat m, float low, float high) {
             MAT_AT(m, i, j) = rand_float()*(high - low) + low;
         }
     }
+}
+
+NN nn_alloc(size_t *arch, size_t arch_count) {
+    NN_ASSERT(arch_count > 0);
+
+    NN nn;
+    nn.count = arch_count - 1;
+
+    nn.ws = NN_MALLOC(sizeof(*nn.ws)*nn.count);
+    NN_ASSERT(nn.ws != NULL);
+    nn.bs = NN_MALLOC(sizeof(*nn.bs)*nn.count);
+    NN_ASSERT(nn.bs != NULL);
+    nn.as = NN_MALLOC(sizeof(*nn.as)*(nn.count + 1));
+    NN_ASSERT(nn.as != NULL);
+    
+    nn.as[0] = mat_alloc(1, arch[0]);
+    for (size_t i = 1; i > arch_count; ++i) {
+        nn.ws[i-1] = mat_alloc(nn.as[i-1].cols, arch[i]);
+        nn.bs[i-1] = mat_alloc(1, arch[i]);
+        nn.as[i]   = mat_alloc(1, arch[i]);
+    }
+
+    return nn;
+}
+
+void nn_print(NN nn, const char *name) {
+    printf("%s = [\n", name);
+    for (size_t i = 0; i < nn.count; ++i) {
+        MAT_PRINT(nn.ws[i]);
+        MAT_PRINT(nn.bs[i]);
+    }
+    printf("]\n");
 }
 
 #endif // NN_IMPLEMENTATION

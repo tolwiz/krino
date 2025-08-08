@@ -35,6 +35,8 @@ float forward_xor(Xor m) {
     mat_dot(m.a2, m.a1, m.w2);
     mat_sum(m.a2, m.b2);
     mat_sig(m.a2);
+    
+    return *m.a2.es;
 }
 
 float cost(Xor m, Mat ti, Mat to) {
@@ -131,10 +133,17 @@ float td[] = {
    0, 0, 0,
    0, 1, 1,
    1, 0, 1,
-   1, 1, 1
+   1, 1, 0
 };
 
 int main(void) {
+    
+    size_t arch[] = {2, 2, 1};
+    NN nn = nn_alloc(arch, ARRAY_LEN(arch));
+    NN_PRINT(nn);
+
+    return 0;
+
     srand(time(0));
 
     size_t stride = 3;
@@ -165,7 +174,7 @@ int main(void) {
     float rate = 1e-1;
 
     printf("cost = %f\n", cost(m, ti, to));
-    for (size_t i = 0; i < 10*1000; ++i) {
+    for (size_t i = 0; i < 1000*1000; ++i) {
         finite_diff(m, g, eps, ti, to);
         xor_learn(m, g, rate);
         printf("%zu: cost = %f\n", i, cost(m, ti, to));
@@ -175,7 +184,6 @@ int main(void) {
 #if 1
     for (size_t i = 0; i < 2; ++i) {
         for (size_t j = 0; j < 2; ++j) {
-            // input
             MAT_AT(m.a0, 0, 0) = i;
             MAT_AT(m.a0, 0, 1) = j;
             forward_xor(m);
