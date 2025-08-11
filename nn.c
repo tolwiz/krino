@@ -3,19 +3,28 @@
 #define NN_IMPLEMENTATION
 #include "kr.h"
 
-float td[] = {
+float td_xor[] = {
    0, 0, 0,
    0, 1, 1,
    1, 0, 1,
    1, 1, 0
 };
 
+float td_or[] = {
+   0, 0, 0,
+   0, 1, 1,
+   1, 0, 1,
+   1, 1, 1
+};
+
 int main(void) {
     
     srand(time(0));
     
+    float *td = td_or;
+
     size_t stride = 3;
-    size_t n = sizeof(td)/sizeof(td[0])/stride;
+    size_t n = 4;
     Mat ti = {
         .rows = n,
         .cols = 2,
@@ -30,7 +39,7 @@ int main(void) {
         .es = td + 2
     };
 
-    size_t arch[] = {2, 2, 1};
+    size_t arch[] = {2, 10, 1};
     NN nn = nn_alloc(arch, ARRAY_LEN(arch));
     NN g = nn_alloc(arch, ARRAY_LEN(arch));
     nn_rand(nn, 0, 1);
@@ -45,6 +54,8 @@ int main(void) {
         nn_learn(nn, g, rate);
         printf("%zu: cost = %f\n", i, nn_cost(nn, ti, to));
     }
+
+    NN_PRINT(nn);
 
     for (size_t i = 0; i < 2; ++i) {
         for (size_t j = 0; j < 2; ++j) {

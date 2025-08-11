@@ -216,6 +216,14 @@ void nn_rand(NN nn, float low, float high) {
     }
 }
 
+void nn_forward(NN nn) {
+    for (size_t i = 0; i < nn.count; ++i) {
+        mat_dot(nn.as[i+1], nn.as[i], nn.ws[i]);
+        mat_sum(nn.as[i+1], nn.bs[i]);
+        mat_sig(nn.as[i+1]);
+    }
+}
+
 float nn_cost(NN nn, Mat ti, Mat to) {
     assert(ti.rows == to.rows);
     assert(to.cols == NN_OUTPUT(nn).cols);
@@ -259,14 +267,6 @@ void nn_finite_diff(NN nn, NN g, float eps, Mat ti, Mat to) {
                 MAT_AT(nn.bs[i], j, k) = saved;
             }
         }
-    }
-}
-
-void nn_forward(NN nn) {
-    for (size_t i = 0; i < nn.count; ++i) {
-        mat_dot(nn.as[i+1], nn.as[i], nn.ws[i]);
-        mat_sum(nn.as[i+1], nn.bs[i]);
-        mat_sig(nn.as[i+1]);
     }
 }
 
